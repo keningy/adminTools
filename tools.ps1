@@ -57,7 +57,7 @@ function Get-LoggedUsers {
         [string]$computerName
 	)
 	try {
-		$loggedUsersProcess = Get-WmiObject -ComputerName $computerName win32_process -Filter "Name='explorer.exe'" -ErrorAction "Stop" | %{$_.getOwner() | Get-Unique |Select-Object domain,user}
+		$loggedUsersProcess = Get-WmiObject -ComputerName $computerName win32_process -Filter "Name='explorer.exe'" -ErrorAction "Stop" | %{$_.getOwner() | Sort | Get-Unique |Select-Object domain,user}
 		$activeUser = (Get-WmiObject -ComputerName $computerName Win32_ComputerSystem -ErrorAction "Stop").userName
 	} catch {
 		return $null
