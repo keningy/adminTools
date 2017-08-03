@@ -1,0 +1,1 @@
+[char[]]([int][char]'а'..[int][char]'я') | %{write-host "начинается на "$_ "`t" (Get-ADUser -Filter "name -like ""$_*""").count}
