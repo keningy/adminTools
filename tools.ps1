@@ -102,5 +102,28 @@ function get-PCStatus {
 	return $tArray
 }
 
-
+Function Find-InstalledApps{
+    param (
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true, ValueFromPipelinebyPropertyName=$true)]
+        [switch]$IncludeEmptyRegEntry
+    )
+    
+    $Apps = @()
+    $RegistryKey = @("HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\")
+    $RegistryKeyX64 = "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\"
+    
+    if (Test-Path -Path $RegistryKeyX64) {$RegistryKey += $RegistryKeyX64}
+    $InstalledApps = Get-ChildItem -Path $RegistryKey
+    Foreach($InstalledApp in $InstalledApps){
+        $Apps += Get-ItemProperty -Path Registry::$InstalledApp | select $InstalledApp.property
+        try {
+            Add-Member -InputObject $Apps[-1] -MemberType NoteProperty -Name "RegistryKey" -Value $InstalledApp.name
+        } catch {
+            if ($IncludeEmptyRegEntry) {
+                $Apps[-1] = New-Object PSCustomObject -Property @{"RegistryKey"=$InstalledApp.name}
+            }
+        }
+    }
+    return $Apps
+}
 #get-PCStatus wkst-31* | ?{$_.status -eq "online"} | %{write-host "$($_.computername)" ; get-LoggedUsers -computerName $_.computerName}
